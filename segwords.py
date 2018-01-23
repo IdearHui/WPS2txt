@@ -34,7 +34,6 @@ class Tokenize:
         :return:
         """
         word_list = []
-        print(fp)
         with open(fp) as f:
             for line in f:  # 1.txt是需要分词统计的文档
                 line = line.encode("utf-8").decode()
