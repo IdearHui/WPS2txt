@@ -2,30 +2,13 @@
 # coding=utf-8
 
 import jieba.analyse
-import os
 import xlwt  # 写入Excel表的库
-import sys
-import importlib
-importlib.reload(sys)
+from common import *
 
 
 class Tokenize:
     def __init__(self):
-        self.base_dir = os.getcwd() + '/doc/'
-
-    def get_all_files(self, fp, suffix):
-        """
-        获取所有fp目录下的文件名,存入file_list列表中
-        :param suffix: 后缀名
-        :param fp:     目录
-        :return:
-        """
-        file_names = []
-        for f in os.listdir(fp):
-            if suffix:
-                if f.find(suffix) != -1:
-                    file_names.append(f)
-        return file_names
+        self.doc_dir = DOC_DIR
 
     def tokenizer(self, fp):
         """
@@ -43,7 +26,7 @@ class Tokenize:
                     word_list.append(t)
         return word_list
 
-    def write_to_txt(self, fp, word_lst):
+    def write_to_txt(self, fn, fp, word_lst):
         """
         保存到文件
         :param fp:
@@ -51,8 +34,10 @@ class Tokenize:
         :return:
         """
         # 判断路径是否存在
-        if not os.path.exists(self.base_dir + 'result/'):
-            os.mkdir(self.base_dir + 'result/')
+        result_fp = fp.strip(fn) + 'result' + get_seg()
+        result_fn = result_fp + fn
+        if not os.path.exists(result_fp):
+            os.makedirs(result_fp)
         word_dict = {}
         # 创建单元格
         wbk = xlwt.Workbook(encoding='ascii')
@@ -62,19 +47,19 @@ class Tokenize:
             word_dict[word] = word_dict.get(word, 0) + 1
         order_list = sorted(word_dict.items(), key=lambda d: d[1], reverse=True)
         # 保存到txt文件
-        with open(fp, 'w') as wf2:  # 打开文件
+        with open(result_fn, 'w') as wf2:  # 打开文件
             for k, v in order_list:
                 wf2.write(k + ' ' + str(v) + '\n')  # 写入txt文档
         # 保存到xls文件
         for i, item in enumerate(order_list):
             sheet.write(i, 1, label=item[0])
             sheet.write(i, 0, label=item[1])
-        wbk.save(fp.split('.')[-2] + '.xls')  # 保存为 wordCount.xls文件
+        wbk.save(result_fn.split('.')[-2] + '.xls')  # 保存为 wordCount.xls文件
 
     def main(self):
-        file_list = self.get_all_files(self.base_dir, '.txt')
-        if file_list:
-            for fn in file_list:
-                fp = self.base_dir + fn
+        fp_list, fn_list = get_all_files(self.doc_dir, '.txt')
+        if fp_list:
+            for index, fp in enumerate(fp_list):
                 words = self.tokenizer(fp)
-                self.write_to_txt(self.base_dir + '/result/' + fn.split("/")[-1], words)
+                fn = fn_list[index]
+                self.write_to_txt(fn, fp, words)
