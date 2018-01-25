@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
-
 import sys
-
 from parser.doc2txt import Doc2Txt
 from segwords import Tokenize
 
@@ -26,7 +24,7 @@ def main(cmd_args):
     """
     if not cmd_args.task:
         print("Error: 参数错误！请添加task参数及其值！")
-        os.system('python3 main.py -h')
+        # os.system('python3 main.py -h')
         sys.exit(1)
     if cmd_args.task == "0":
         dt = Doc2Txt()
